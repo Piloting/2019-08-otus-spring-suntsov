@@ -10,8 +10,7 @@ public class Main {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("/spring-context.xml");
         TestService testService = context.getBean(TestService.class);
         TestResult result = testService.processTest();
-        System.out.println(result.getPerson());
-        System.out.println(result.getTestName());
-        System.out.println(result.getValue());
+        System.out.println("Результат теста: " + result.getTestName());
+        System.out.println("Верных ответов: " + result.getValue() + "%");
     }
 }

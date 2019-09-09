@@ -1,6 +1,8 @@
 package ru.otus.spring.domain;
 
 import lombok.Data;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,8 +18,11 @@ public class Answer {
     /**
      * Полученные варианты ответа
      */
-    private List<QuestionOption> answerOptionList;
+    private List<QuestionOption> answerOptionList = new ArrayList<>();
 
+    /**
+     * Подсчет % правильных ответов
+     */
     public Integer calculateCorrectPercent(){
         Long countCorrectInQuestion = question.getQuestionOptionList().stream().filter(QuestionOption::isCorrect).count();
         Long countCorrectInAnswer = answerOptionList.stream().filter(QuestionOption::isCorrect).count();

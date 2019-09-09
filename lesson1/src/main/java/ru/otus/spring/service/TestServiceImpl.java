@@ -54,7 +54,7 @@ public class TestServiceImpl implements TestService {
 
     private Integer calculateResultValue(List<Answer> answerList) {
         OptionalDouble average = answerList.stream().mapToInt(Answer::calculateCorrectPercent).average();
-        double resultPercent = average.orElseGet(() -> 0);
+        double resultPercent = average.orElse(0);
         return (int) resultPercent;
     }
 }
