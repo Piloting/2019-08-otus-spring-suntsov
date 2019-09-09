@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class QuestionDaoCsv implements QuestionDao {
 
     private final String questionFileName;
@@ -17,6 +19,6 @@ public class QuestionDaoCsv implements QuestionDao {
 
     public List<Question> getAllQuestions() {
         InputStream questionStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(questionFileName);
-        return new CsvToBeanBuilder<Question>(new InputStreamReader(questionStream)).withType(Question.class).build().parse();
+        return new CsvToBeanBuilder<Question>(new InputStreamReader(questionStream, UTF_8)).withType(Question.class).build().parse();
     }
 }
