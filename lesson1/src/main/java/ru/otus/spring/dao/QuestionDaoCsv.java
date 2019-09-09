@@ -19,6 +19,7 @@ public class QuestionDaoCsv implements QuestionDao {
 
     public List<Question> getAllQuestions() {
         InputStream questionStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(questionFileName);
+        // чтение csv спец утилитой сразу в dto. Question аннотирован для правильного маппинга
         return new CsvToBeanBuilder<Question>(new InputStreamReader(questionStream, UTF_8)).withType(Question.class).build().parse();
     }
 }

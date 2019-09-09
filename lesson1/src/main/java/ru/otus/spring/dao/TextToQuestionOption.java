@@ -3,6 +3,9 @@ package ru.otus.spring.dao;
 import com.opencsv.bean.AbstractCsvConverter;
 import ru.otus.spring.domain.QuestionOption;
 
+/**
+ * Спец парсер для разбора ячейки csv с вариантами ответов
+ */
 public class TextToQuestionOption extends AbstractCsvConverter {
     private static final String IS_CORRECT = "1";
 
