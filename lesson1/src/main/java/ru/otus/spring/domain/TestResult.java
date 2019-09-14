@@ -12,11 +12,6 @@ import java.util.List;
 @ToString
 public class TestResult {
     /**
-     * Имя испытуемого
-     */
-    private Person person;
-
-    /**
      * Название теста
      */
     private String testName;

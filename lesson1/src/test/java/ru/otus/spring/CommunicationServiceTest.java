@@ -4,8 +4,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import ru.otus.spring.domain.Question;
 import ru.otus.spring.domain.QuestionOption;
+import ru.otus.spring.service.ChannelService;
 import ru.otus.spring.service.CommunicationService;
-import ru.otus.spring.service.CommunicationServiceConsoleImpl;
+import ru.otus.spring.service.CommunicationServiceImpl;
+import ru.otus.spring.service.ScannerChannelServiceImpl;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -20,11 +22,9 @@ public class CommunicationServiceTest {
     public void test(){
         String testAnswers = "0 ,asd, ,15m, ///, 1,2";
         InputStream inputStream = new ByteArrayInputStream(testAnswers.getBytes(StandardCharsets.UTF_8));
-        CommunicationService communicationService = new CommunicationServiceConsoleImpl(){
-            protected Scanner getScanner() {
-                return new Scanner(inputStream);
-            }
-        };
+
+        ChannelService channel = new ScannerChannelServiceImpl(new Scanner(inputStream));
+        CommunicationService communicationService = new CommunicationServiceImpl(channel);
         Question question = new Question();
         question.setQuestion("Это самый важный вопрос?");
 

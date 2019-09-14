@@ -8,7 +8,14 @@
         <constructor-arg name="questionFileName" value="questions.csv"/>
     </bean>
 
-    <bean id="communicationService" class="ru.otus.spring.service.CommunicationServiceConsoleImpl">
+    <bean id="channelService" class="ru.otus.spring.service.ScannerChannelServiceImpl">
+    </bean>
+
+    <bean id="personService" class="ru.otus.spring.service.PersonServiceImpl">
+        <constructor-arg name="channel"  ref="channelService"/>
+    </bean>
+    <bean id="communicationService" class="ru.otus.spring.service.CommunicationServiceImpl">
+        <constructor-arg name="channel"  ref="channelService"/>
     </bean>
 
     <bean id="testService" class="ru.otus.spring.service.TestServiceImpl">
@@ -16,4 +23,8 @@
          <constructor-arg name="communicationService" ref="communicationService"/>
     </bean>
 
+    <bean id="testRunner" class="ru.otus.spring.service.TestRunnerImpl">
+        <constructor-arg name="personService" ref="personService"/>
+        <constructor-arg name="testService" ref="testService"/>
+    </bean>
 </beans>

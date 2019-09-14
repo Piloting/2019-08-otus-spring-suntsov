@@ -1,7 +1,6 @@
 package ru.otus.spring.service;
 
 import org.apache.commons.lang3.StringUtils;
-import ru.otus.spring.domain.Person;
 import ru.otus.spring.domain.Question;
 import ru.otus.spring.domain.QuestionOption;
 
@@ -10,27 +9,12 @@ import java.util.*;
 /**
  * Сервис взаимодействия с пользоваелем
  */
-public class CommunicationServiceConsoleImpl implements CommunicationService {
+public class CommunicationServiceImpl implements CommunicationService {
 
-    @Override
-    public Person getPerson() {
-        Scanner sc = getScanner();
-        System.out.print("Введите фамилию и имя: ");
-        String answer = sc.next();
-        String[] names = answer.split(" ");
+    private final ChannelService channel;
 
-        Person person = new Person();
-        if (names.length > 0){
-            person.setLastName(names[0]);
-        }
-        if (names.length > 1){
-            person.setName(names[1]);
-        }
-        return person;
-    }
-
-    protected Scanner getScanner() {
-        return new Scanner(System.in);
+    public CommunicationServiceImpl(ChannelService channel){
+        this.channel = channel;
     }
 
     /**
@@ -40,8 +24,8 @@ public class CommunicationServiceConsoleImpl implements CommunicationService {
      */
     public Set<QuestionOption> getAnswer(Question question){
         // печать в консоль вопроса и вариантов ответа
-        System.out.println(question.getQuestion());
-        System.out.println("Варианты ответа:");
+        channel.say(question.getQuestion());
+        channel.say("Варианты ответа:");
         int i = 1;
 
         // мапа [номер ответа - dto ответа]
@@ -50,7 +34,8 @@ public class CommunicationServiceConsoleImpl implements CommunicationService {
         // печать вариатнов отвта
         for (QuestionOption answerOption : question.getQuestionOptionList()) {
             optionMap.put(i, answerOption);
-            System.out.println("\t" + i++ + ". " + answerOption.getText());
+            String string = "\t" + i++ + ". " + answerOption.getText();
+            channel.say(string);
         }
 
         // получение ответа пользователя
@@ -61,12 +46,11 @@ public class CommunicationServiceConsoleImpl implements CommunicationService {
      * Получение списка цифр из консоли.
      */
     private Set<QuestionOption> getAnswerFromConsole(Map<Integer, QuestionOption> optionMap){
-        Scanner sc = getScanner();
         Set<QuestionOption> responseOptionSet = new HashSet<>();
 
         while (responseOptionSet.isEmpty()) {
-            System.out.println("Введите ответ:");
-            String complexAnswer = sc.next();
+            channel.say("Введите ответ:");
+            String complexAnswer = channel.listen();
 
             if (StringUtils.isNotBlank(complexAnswer)){
                 parseUserAnswer(optionMap, responseOptionSet, complexAnswer);
@@ -86,13 +70,13 @@ public class CommunicationServiceConsoleImpl implements CommunicationService {
             }
 
             if (!StringUtils.isNumeric(singleAnswer.trim())){
-                System.out.println("Не удалось распознать введенный ответ. Попробуйте снова.");
+                channel.say("Не удалось распознать введенный ответ. Попробуйте снова.");
                 break;
             }
 
             int inputInt = Integer.parseInt(singleAnswer);
             if (!optionMap.containsKey(inputInt)){
-                System.out.println("Введенное значение не является доступным вариантом. Попробуйте снова.");
+                channel.say("Введенное значение не является доступным вариантом. Попробуйте снова.");
                 break;
             }
 

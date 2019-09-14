@@ -20,7 +20,6 @@ public class TestServiceImpl implements TestService {
         this.communicationService = communicationService;
     }
 
-
     /**
      * Запуск теста
      * @return результат теста
@@ -32,10 +31,6 @@ public class TestServiceImpl implements TestService {
 
         TestResult result = new TestResult();
         result.setTestName("Тест №1");
-
-        // запросить пользователя
-        Person person = communicationService.getPerson();
-        result.setPerson(person);
 
         // получаем ответ на каждый вопрос
         List<Answer> answerList = new ArrayList<>(allQuestions.size());

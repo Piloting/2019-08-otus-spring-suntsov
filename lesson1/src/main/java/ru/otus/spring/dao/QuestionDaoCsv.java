@@ -2,6 +2,7 @@ package ru.otus.spring.dao;
 
 import com.opencsv.bean.CsvToBeanBuilder;
 import ru.otus.spring.domain.Question;
+import ru.otus.spring.exception.CsvParseException;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,7 +20,11 @@ public class QuestionDaoCsv implements QuestionDao {
 
     public List<Question> getAllQuestions() {
         InputStream questionStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(questionFileName);
-        // чтение csv спец утилитой сразу в dto. Question аннотирован для правильного маппинга
-        return new CsvToBeanBuilder<Question>(new InputStreamReader(questionStream, UTF_8)).withType(Question.class).build().parse();
+        try {
+            // чтение csv спец утилитой сразу в dto. Question аннотирован для правильного маппинга
+            return new CsvToBeanBuilder<Question>(new InputStreamReader(questionStream, UTF_8)).withType(Question.class).build().parse();
+        } catch (Exception e){
+            throw new CsvParseException("Ошибка обработки csv файла с вопросами - " + questionFileName, e);
+        }
     }
 }
