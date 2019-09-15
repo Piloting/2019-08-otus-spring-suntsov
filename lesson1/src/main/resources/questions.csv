@@ -1,6 +1,6 @@
 question,options
-Быть или не быть?,1;Быть|0;Не быть
-Есть ли жизнь на марсе?,1;Не известно|0;Нет|0;Есть
-Кому на Руси жить хорошо?,0;Врачам|0;Учителям|1;Депутатам
-Как зовут типового кота в вакуме?,0;Белка|1;Васька|0;Кузьма
-Есть ли свой академгородок в Новосибирске?,1;Есть|2;Нет
+To_be_or_not,1;To_be|0;Not_to_be
+life_on_Mars,1;It_is_not_known|0;No|0;Is
+live_in_Russia,0;Doctors|0;Teachers|1;Deputies
+cat_name,0;Squirrel|1;Vaska|0;Kuzma
+academic_town_nsk,1;Is|2;No

@@ -2,6 +2,7 @@ package ru.otus.spring;
 
 import org.junit.Assert;
 import org.junit.Test;
+import ru.otus.spring.common.LocalMessage;
 import ru.otus.spring.dao.QuestionDaoCsv;
 import ru.otus.spring.domain.Question;
 import ru.otus.spring.domain.QuestionOption;
@@ -13,12 +14,15 @@ public class QuestionDaoTest {
 
     @Test
     public void csvLoadTest(){
-        QuestionDaoCsv dao = new QuestionDaoCsv("questionsTest.csv");
+        QuestionDaoCsv dao = new QuestionDaoCsv("questionsTest.csv", new LocalMessage() {
+            @Override public String getMessage(String name, Object... args) { return name; }
+            @Override public String getMessage(String name) { return name; }
+        });
         List<Question> allQuestions = dao.getAllQuestions();
 
         Assert.assertEquals("Должно быть 3 элемента", allQuestions.size(), 3);
         System.out.println(allQuestions);
-        List<Question> result = allQuestions.stream().filter(line -> line.getQuestion().startsWith("Быть")).collect(Collectors.toList());
+        List<Question> result = allQuestions.stream().filter(line -> line.getQuestion().startsWith("To_be")).collect(Collectors.toList());
 
         Assert.assertEquals("Не должно быть повторений." + result.toString(), result.size(), 1);
         Question question = result.iterator().next();
