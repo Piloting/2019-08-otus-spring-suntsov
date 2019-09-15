@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="questionDao" class="ru.otus.spring.dao.QuestionDaoCsv">
+        <constructor-arg name="questionFileName" value="questions.csv"/>
+    </bean>
+
+    <bean id="channelService" class="ru.otus.spring.service.ScannerChannelServiceImpl">
+    </bean>
+
+    <bean id="personService" class="ru.otus.spring.service.PersonServiceImpl">
+        <constructor-arg name="channel"  ref="channelService"/>
+    </bean>
+    <bean id="communicationService" class="ru.otus.spring.service.CommunicationServiceImpl">
+        <constructor-arg name="channel"  ref="channelService"/>
+    </bean>
+
+    <bean id="testService" class="ru.otus.spring.service.TestServiceImpl">
+         <constructor-arg name="questionDao" ref="questionDao"/>
+         <constructor-arg name="communicationService" ref="communicationService"/>
+    </bean>
+
+    <bean id="testRunner" class="ru.otus.spring.service.TestRunnerImpl">
+        <constructor-arg name="personService" ref="personService"/>
+        <constructor-arg name="testService" ref="testService"/>
+    </bean>
+</beans>
