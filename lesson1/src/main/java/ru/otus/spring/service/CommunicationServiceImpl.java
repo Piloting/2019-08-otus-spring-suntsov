@@ -2,7 +2,7 @@ package ru.otus.spring.service;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import ru.otus.spring.common.LocalMessage;
+import ru.otus.spring.common.LocalizationService;
 import ru.otus.spring.domain.Question;
 import ru.otus.spring.domain.QuestionOption;
 
@@ -15,11 +15,11 @@ import java.util.*;
 public class CommunicationServiceImpl implements CommunicationService {
 
     private final ChannelService channel;
-    private final LocalMessage localMessage;
+    private final LocalizationService localizationService;
 
-    public CommunicationServiceImpl(ChannelService channel, LocalMessage localMessage){
+    public CommunicationServiceImpl(ChannelService channel, LocalizationService localizationService){
         this.channel = channel;
-        this.localMessage = localMessage;
+        this.localizationService = localizationService;
     }
 
     /**
@@ -29,8 +29,8 @@ public class CommunicationServiceImpl implements CommunicationService {
      */
     public Set<QuestionOption> getAnswer(Question question){
         // печать в консоль вопроса и вариантов ответа
-        channel.say(localMessage.getMessage(question.getQuestion()));
-        channel.say(localMessage.getMessage("answer_option"));
+        channel.say(question.getQuestion());
+        channel.say(localizationService.getMessage("answer_option"));
         int i = 1;
 
         // мапа [номер ответа - dto ответа]
@@ -39,7 +39,7 @@ public class CommunicationServiceImpl implements CommunicationService {
         // печать вариатнов отвта
         for (QuestionOption answerOption : question.getQuestionOptionList()) {
             optionMap.put(i, answerOption);
-            String string = "\t" + i++ + ". " + localMessage.getMessage(answerOption.getText());
+            String string = "\t" + i++ + ". " + answerOption.getText();
             channel.say(string);
         }
 
@@ -54,7 +54,7 @@ public class CommunicationServiceImpl implements CommunicationService {
         Set<QuestionOption> responseOptionSet = new HashSet<>();
 
         while (responseOptionSet.isEmpty()) {
-            channel.say(localMessage.getMessage("say_answer"));
+            channel.say(localizationService.getMessage("say_answer"));
             String complexAnswer = channel.listen();
 
             if (StringUtils.isNotBlank(complexAnswer)){
@@ -75,13 +75,13 @@ public class CommunicationServiceImpl implements CommunicationService {
             }
 
             if (!StringUtils.isNumeric(singleAnswer.trim())){
-                channel.say(localMessage.getMessage("error_answer"));
+                channel.say(localizationService.getMessage("error_answer"));
                 break;
             }
 
             int inputInt = Integer.parseInt(singleAnswer.trim());
             if (!optionMap.containsKey(inputInt)){
-                channel.say(localMessage.getMessage("out_of_option"));
+                channel.say(localizationService.getMessage("out_of_option"));
                 break;
             }
 

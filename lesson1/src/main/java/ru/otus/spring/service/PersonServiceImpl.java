@@ -1,23 +1,23 @@
 package ru.otus.spring.service;
 
 import org.springframework.stereotype.Service;
-import ru.otus.spring.common.LocalMessage;
+import ru.otus.spring.common.LocalizationService;
 import ru.otus.spring.domain.Person;
 
 @Service
 public class PersonServiceImpl implements PersonService {
 
     private final ChannelService channel;
-    private final LocalMessage localMessage;
+    private final LocalizationService localizationService;
     
-    public PersonServiceImpl(ChannelService channel, LocalMessage localMessage){
+    public PersonServiceImpl(ChannelService channel, LocalizationService localizationService){
         this.channel = channel;
-        this.localMessage = localMessage;
+        this.localizationService = localizationService;
     }
     
     @Override
     public Person getPerson() {
-        channel.say(localMessage.getMessage("say_name"));
+        channel.say(localizationService.getMessage("say_name"));
         String answer = channel.listen();
         String[] names = answer.split(" ");
 

@@ -2,7 +2,8 @@ package ru.otus.spring;
 
 import org.junit.Assert;
 import org.junit.Test;
-import ru.otus.spring.common.LocalMessage;
+import org.mockito.Mockito;
+import ru.otus.spring.common.LocalizationService;
 import ru.otus.spring.domain.Question;
 import ru.otus.spring.domain.QuestionOption;
 import ru.otus.spring.service.ChannelService;
@@ -17,6 +18,9 @@ import java.util.Arrays;
 import java.util.Scanner;
 import java.util.Set;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+
 public class CommunicationServiceTest {
 
     @Test
@@ -24,11 +28,11 @@ public class CommunicationServiceTest {
         String testAnswers = "0\nasd\n15m\n///\n 1,2\n";
         InputStream inputStream = new ByteArrayInputStream(testAnswers.getBytes(StandardCharsets.UTF_8));
 
+        LocalizationService localizationService = mock(LocalizationService.class);
+        Mockito.when(localizationService.getMessage(any())).thenReturn("-mock-");
+        
         ChannelService channel = new ScannerChannelServiceImpl(new Scanner(inputStream));
-        CommunicationService communicationService = new CommunicationServiceImpl(channel, new LocalMessage() {
-            @Override public String getMessage(String name, Object... args) { return name; }
-            @Override public String getMessage(String name) { return name; }
-        });
+        CommunicationService communicationService = new CommunicationServiceImpl(channel, localizationService);
         Question question = new Question();
         question.setQuestion("Is this the most important question?");
 

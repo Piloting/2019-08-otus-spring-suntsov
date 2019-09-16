@@ -1,7 +1,6 @@
 package ru.otus.spring.service;
 
 import org.springframework.stereotype.Service;
-import ru.otus.spring.common.LocalMessage;
 import ru.otus.spring.dao.QuestionDao;
 import ru.otus.spring.domain.Answer;
 import ru.otus.spring.domain.Question;
@@ -19,12 +18,10 @@ public class TestServiceImpl implements TestService {
 
     private final QuestionDao questionDao;
     private final CommunicationService communicationService;
-    private final LocalMessage localMessage;
 
-    public TestServiceImpl(QuestionDao questionDao, CommunicationService communicationService, LocalMessage localMessage){
+    public TestServiceImpl(QuestionDao questionDao, CommunicationService communicationService){
         this.questionDao = questionDao;
         this.communicationService = communicationService;
-        this.localMessage = localMessage;
     }
 
     /**
