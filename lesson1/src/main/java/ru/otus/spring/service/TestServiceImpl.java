@@ -1,7 +1,10 @@
 package ru.otus.spring.service;
 
+import org.springframework.stereotype.Service;
 import ru.otus.spring.dao.QuestionDao;
-import ru.otus.spring.domain.*;
+import ru.otus.spring.domain.Answer;
+import ru.otus.spring.domain.Question;
+import ru.otus.spring.domain.TestResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +13,7 @@ import java.util.OptionalDouble;
 /**
  * Сервис прохождения теста
  */
+@Service
 public class TestServiceImpl implements TestService {
 
     private final QuestionDao questionDao;
@@ -30,7 +34,7 @@ public class TestServiceImpl implements TestService {
         List<Question> allQuestions = questionDao.getAllQuestions();
 
         TestResult result = new TestResult();
-        result.setTestName("Тест №1");
+        result.setTestName("1");
 
         // получаем ответ на каждый вопрос
         List<Answer> answerList = new ArrayList<>(allQuestions.size());

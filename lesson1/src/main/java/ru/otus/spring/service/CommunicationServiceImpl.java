@@ -1,6 +1,8 @@
 package ru.otus.spring.service;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import ru.otus.spring.common.LocalizationService;
 import ru.otus.spring.domain.Question;
 import ru.otus.spring.domain.QuestionOption;
 
@@ -9,12 +11,15 @@ import java.util.*;
 /**
  * Сервис взаимодействия с пользоваелем
  */
+@Service
 public class CommunicationServiceImpl implements CommunicationService {
 
     private final ChannelService channel;
+    private final LocalizationService localizationService;
 
-    public CommunicationServiceImpl(ChannelService channel){
+    public CommunicationServiceImpl(ChannelService channel, LocalizationService localizationService){
         this.channel = channel;
+        this.localizationService = localizationService;
     }
 
     /**
@@ -25,7 +30,7 @@ public class CommunicationServiceImpl implements CommunicationService {
     public Set<QuestionOption> getAnswer(Question question){
         // печать в консоль вопроса и вариантов ответа
         channel.say(question.getQuestion());
-        channel.say("Варианты ответа:");
+        channel.say(localizationService.getMessage("answer_option"));
         int i = 1;
 
         // мапа [номер ответа - dto ответа]
@@ -49,7 +54,7 @@ public class CommunicationServiceImpl implements CommunicationService {
         Set<QuestionOption> responseOptionSet = new HashSet<>();
 
         while (responseOptionSet.isEmpty()) {
-            channel.say("Введите ответ:");
+            channel.say(localizationService.getMessage("say_answer"));
             String complexAnswer = channel.listen();
 
             if (StringUtils.isNotBlank(complexAnswer)){
@@ -70,13 +75,13 @@ public class CommunicationServiceImpl implements CommunicationService {
             }
 
             if (!StringUtils.isNumeric(singleAnswer.trim())){
-                channel.say("Не удалось распознать введенный ответ. Попробуйте снова.");
+                channel.say(localizationService.getMessage("error_answer"));
                 break;
             }
 
-            int inputInt = Integer.parseInt(singleAnswer);
+            int inputInt = Integer.parseInt(singleAnswer.trim());
             if (!optionMap.containsKey(inputInt)){
-                channel.say("Введенное значение не является доступным вариантом. Попробуйте снова.");
+                channel.say(localizationService.getMessage("out_of_option"));
                 break;
             }
 

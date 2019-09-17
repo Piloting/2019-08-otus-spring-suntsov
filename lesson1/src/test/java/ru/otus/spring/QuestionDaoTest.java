@@ -7,18 +7,19 @@ import ru.otus.spring.domain.Question;
 import ru.otus.spring.domain.QuestionOption;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class QuestionDaoTest {
 
     @Test
     public void csvLoadTest(){
-        QuestionDaoCsv dao = new QuestionDaoCsv("questionsTest.csv");
+        QuestionDaoCsv dao = new QuestionDaoCsv("questionsTest.csv", Locale.ENGLISH);
         List<Question> allQuestions = dao.getAllQuestions();
 
         Assert.assertEquals("Должно быть 3 элемента", allQuestions.size(), 3);
         System.out.println(allQuestions);
-        List<Question> result = allQuestions.stream().filter(line -> line.getQuestion().startsWith("Быть")).collect(Collectors.toList());
+        List<Question> result = allQuestions.stream().filter(line -> line.getQuestion().startsWith("To be")).collect(Collectors.toList());
 
         Assert.assertEquals("Не должно быть повторений." + result.toString(), result.size(), 1);
         Question question = result.iterator().next();

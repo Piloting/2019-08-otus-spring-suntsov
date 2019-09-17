@@ -1,11 +1,15 @@
 package ru.otus.spring.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import java.util.Scanner;
 
+@Service
 public class ScannerChannelServiceImpl implements ChannelService {
 
     private final Scanner scanner;
     
+    @Autowired
     public ScannerChannelServiceImpl(){
         this.scanner = new Scanner(System.in);
         this.scanner.useDelimiter("\n");
