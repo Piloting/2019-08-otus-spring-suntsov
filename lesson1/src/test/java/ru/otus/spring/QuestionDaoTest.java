@@ -2,6 +2,7 @@ package ru.otus.spring;
 
 import org.junit.Assert;
 import org.junit.Test;
+import ru.otus.spring.common.LocalProperties;
 import ru.otus.spring.dao.QuestionDaoCsv;
 import ru.otus.spring.domain.Question;
 import ru.otus.spring.domain.QuestionOption;
@@ -14,7 +15,7 @@ public class QuestionDaoTest {
 
     @Test
     public void csvLoadTest(){
-        QuestionDaoCsv dao = new QuestionDaoCsv("questionsTest.csv", Locale.ENGLISH);
+        QuestionDaoCsv dao = new QuestionDaoCsv(new LocalProperties(Locale.ENGLISH, "questionsTest.csv"));
         List<Question> allQuestions = dao.getAllQuestions();
 
         Assert.assertEquals("Должно быть 3 элемента", allQuestions.size(), 3);
