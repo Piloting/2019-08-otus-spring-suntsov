@@ -1,30 +1,30 @@
 package ru.otus.spring;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.junit4.SpringRunner;
 import ru.otus.spring.domain.TestResult;
 import ru.otus.spring.service.ChannelService;
 import ru.otus.spring.service.TestService;
 
-@RunWith(SpringRunner.class)
+@DisplayName("Проверка прохождения теста")
 @SpringBootTest
-public class ProcessTest {
+public class TestServiceTest {
 
     @Autowired
-    private ApplicationContext applicationContext;
+    TestService testService;
 
     @MockBean
     ChannelService channelService;
     
+    @DisplayName(" пройдена успешно")
     @Test
-    public void contextLoads() {
+    public void processTest() {
         Mockito.when(channelService.listen()).then(invocationOnMock -> {
             System.out.println("1");
             return "1";
@@ -36,9 +36,8 @@ public class ProcessTest {
             return null;
         }).when(channelService).say(Mockito.any());
 
-        TestService testService = applicationContext.getBean(TestService.class);
         TestResult testResult = testService.processTest();
 
-        Assert.assertEquals("Result 60%", 60, testResult.getValue());
+        Assertions.assertEquals(60, testResult.getValue(), "Result 60%");
     }
 }

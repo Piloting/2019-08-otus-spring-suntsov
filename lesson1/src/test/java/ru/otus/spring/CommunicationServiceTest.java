@@ -1,7 +1,8 @@
 package ru.otus.spring;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import ru.otus.spring.common.LocalizationService;
 import ru.otus.spring.domain.Question;
@@ -21,8 +22,10 @@ import java.util.Set;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 
+@DisplayName("Проверка сервиса взаимодейтвия")
 public class CommunicationServiceTest {
 
+    @DisplayName(" пройдена успешно")
     @Test
     public void test(){
         String testAnswers = "0\nasd\n15m\n///\n 1,2\n";
@@ -44,6 +47,6 @@ public class CommunicationServiceTest {
 
         Set<QuestionOption> optionList = communicationService.getAnswer(question);
 
-        Assert.assertEquals("2 ответа", optionList.size(), 2);
+        Assertions.assertEquals(optionList.size(), 2, "2 ответа");
     }
 }
