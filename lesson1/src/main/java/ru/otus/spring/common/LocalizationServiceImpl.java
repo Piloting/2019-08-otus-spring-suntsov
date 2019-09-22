@@ -11,9 +11,9 @@ public class LocalizationServiceImpl implements LocalizationService {
     private final MessageSource messageSource;
     private final Locale locale;
 
-    public LocalizationServiceImpl(MessageSource messageSource, Locale locale)  {
+    public LocalizationServiceImpl(MessageSource messageSource, LocalProperties localProperties)  {
         this.messageSource = messageSource;
-        this.locale = locale;
+        this.locale = localProperties.getLocale();
     }
 
     public String getMessage(String name, Object... args){

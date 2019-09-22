@@ -1,8 +1,10 @@
 #путь до CSV-файла
-question.baseFileName=questions.csv
+question.baseFileName: questions.csv
 
 #текущую локаль
-locale=ru
+locale: ru
 
 # процент правильных ответов для зачёта
-successPercent=50
+successPercent: 50
+
+application.version: @project.version@
