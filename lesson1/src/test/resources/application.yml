@@ -1,3 +1,9 @@
+spring:
+  shell:
+    interactive:
+      enabled: false  
+  messages:
+    basename: localization/bundle
 question:
   #путь до CSV-файла
   baseFileName: questions.csv
@@ -7,8 +13,4 @@ question:
 # процент правильных ответов для зачёта
 successPercent: 50
 
-application.version: @project.version@
-
-spring:
-  messages:
-    basename: localization/bundle
+application.version: 1.01
