@@ -19,7 +19,8 @@ public class GenreServiceImpl implements GenreService{
     
     private final GenreDao genreDao;
     
-    public List<Genre> findGenres(String name){
+    @Override
+    public List<Genre> findGenresByName(String name){
         if (!StringUtils.isEmpty(name)){
             return genreDao.findGenresByName(name);
         } else {
@@ -28,7 +29,7 @@ public class GenreServiceImpl implements GenreService{
     }
 
     @Override
-    public List<Genre> getGenres(List<String> names) {
+    public List<Genre> getGenresByNames(List<String> names) {
         if (CollectionUtils.isEmpty(names)){
             return null;
         }

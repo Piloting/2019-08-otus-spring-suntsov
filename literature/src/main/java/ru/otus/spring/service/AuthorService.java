@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 public interface AuthorService {
-    List<Author> findAuthors(String brief);
-    List<Author> getAuthorByIds(Collection<Long> ids);
+    List<Author> findAuthorsByBrief(String brief);
+    List<Author> getAuthorsByIds(Collection<Long> ids);
     Author getAuthor(Long id, String brief);
 }

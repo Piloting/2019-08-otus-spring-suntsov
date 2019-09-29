@@ -9,7 +9,6 @@ public interface BookDao {
     List<Book> getByParam(String title, String authorBrief, String genreName);
     
     Book getById(Long id);
-    Book getByName(String name);
 
     Long insertBook(Book book);
     void updateBook(Book book);

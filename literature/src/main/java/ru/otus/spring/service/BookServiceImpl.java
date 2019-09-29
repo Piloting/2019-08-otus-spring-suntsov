@@ -11,7 +11,6 @@ import ru.otus.spring.domain.BookGenre;
 import ru.otus.spring.domain.BookInfo;
 import ru.otus.spring.domain.Genre;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +27,7 @@ public class BookServiceImpl implements BookService {
     private final GenreService genreService;
 
     @Override
-    public List<Book> getBooks(String title, String authorBrief, String genreName) {
+    public List<Book> getBooksByParam(String title, String authorBrief, String genreName) {
         if (!StringUtils.isEmpty(title) || !StringUtils.isEmpty(title) || !StringUtils.isEmpty(title)){
             return bookDao.getByParam(title, authorBrief, genreName);
         } else {
@@ -37,15 +36,15 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookInfo> getBooksInfo(String title, String authorBrief, String genreName) {
-        List<Book> books = getBooks(title, authorBrief, genreName);
+    public List<BookInfo> getBookFullInfoByParam(String title, String authorBrief, String genreName) {
+        List<Book> books = getBooksByParam(title, authorBrief, genreName);
         if (CollectionUtils.isEmpty(books)){
             return null;
         }
         
         // авторы
         Set<Long> authorIds = books.stream().map(Book::getAuthorId).collect(Collectors.toSet());
-        List<Author> authors = authorService.getAuthorByIds(authorIds);
+        List<Author> authors = authorService.getAuthorsByIds(authorIds);
         Map<Long, Author> authorIdToAuthorMap = authors.stream().collect(Collectors.toMap(Author::getId, author -> author));
 
         // жанры
@@ -68,32 +67,6 @@ public class BookServiceImpl implements BookService {
         }
         
         return bookInfos;
-    }
-
-    @Override
-    public Book getById(Long id) {
-        return null;
-    }
-
-    @Override
-    public Book getByName(String name) {
-        return null;
-    }
-
-
-    @Override
-    public void addBook(String name, LocalDate releaseDate, String author) {
-
-    }
-
-    @Override
-    public void addBookGenre(Book book, Genre genre) {
-
-    }
-
-    @Override
-    public void deleteBookGenre(Book book, Genre genre) {
-
     }
 
     @Override

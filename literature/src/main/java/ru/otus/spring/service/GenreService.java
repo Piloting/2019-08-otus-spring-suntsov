@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.List;
 
 public interface GenreService {
-    List<Genre> findGenres(String name);
-    List<Genre> getGenres(List<String> name);
+    List<Genre> findGenresByName(String name);
+    List<Genre> getGenresByNames(List<String> name);
     void bindGenres(Long bookId, List<Genre> genres);
     List<BookGenre> getGenresByBookIds(Collection<Long> bookIds);
 

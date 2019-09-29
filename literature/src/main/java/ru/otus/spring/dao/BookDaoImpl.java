@@ -4,12 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 import ru.otus.spring.domain.Book;
-import ru.otus.spring.domain.Genre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -34,13 +32,15 @@ public class BookDaoImpl implements BookDao {
         String query = 
                 "SELECT BOOK.ID, BOOK.TITLE, BOOK.AUTHORID " +
                 "FROM BOOK " +
-                "LEFT JOIN AUTHOR    ON AUTHOR.ID        = BOOK.AUTHORID " +
-                "LEFT JOIN BOOKGENRE ON BOOKGENRE.BOOKID = BOOK.ID " +
-                "LEFT JOIN GENRE     ON GENRE.ID         = BOOKGENRE.GENREID " +
+                "LEFT JOIN AUTHOR ON AUTHOR.ID = BOOK.AUTHORID " +
                 "WHERE 1=1 " +
                 addIsNeed(title,       "AND BOOK.TITLE   LIKE :TITLE ") +
                 addIsNeed(authorBrief, "AND AUTHOR.BRIEF LIKE :AUTHORBRIEF ") +
-                addIsNeed(genreName,   "AND GENRE.NAME   LIKE :GENRENAME ");
+                addIsNeed(genreName,   "AND EXISTS(SELECT 1 " +
+                                                "           FROM BOOKGENRE " +
+                                                "           JOIN GENRE ON GENRE.ID = BOOKGENRE.GENREID" +
+                                                "           WHERE BOOKGENRE.BOOKID = BOOK.ID " +
+                                                "           AND GENRE.NAME LIKE :GENRENAME)");
         
         return namedParameterJdbcOperations.query(query, params, new BookMapper());
     }
@@ -72,11 +72,6 @@ public class BookDaoImpl implements BookDao {
     }
 
     @Override
-    public Book getByName(String name) {
-        return null;
-    }
-
-    @Override
     public Long insertBook(Book book) {
         Map<String, Object> params = new HashMap<>(2);
         params.put("TITLE", book.getTitle());
@@ -84,8 +79,8 @@ public class BookDaoImpl implements BookDao {
 
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         namedParameterJdbcOperations.update("INSERT INTO BOOK (TITLE, AUTHORID) VALUES (:TITLE, :AUTHORID)", new MapSqlParameterSource(params), keyHolder);
-
-        return keyHolder.getKey().longValue();
+        book.setId(keyHolder.getKey().longValue());
+        return book.getId();
     }
 
     @Override

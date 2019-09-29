@@ -9,8 +9,8 @@ import java.util.List;
 public interface GenreDao {
     List<Genre> findGenresByName(String name);
     List<Genre> findAllGenres();
+    
     List<BookGenre> getGenresByBookIds(Collection<Long> bookIds);
     void insertBookGenres(List<BookGenre> bookGenres);
-
     void deleteBookGenreByBookId(Long bookId);
 }

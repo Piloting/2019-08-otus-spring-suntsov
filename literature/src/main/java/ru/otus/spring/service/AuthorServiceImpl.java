@@ -17,7 +17,7 @@ public class AuthorServiceImpl implements AuthorService{
     private final AuthorDao authorDao;
 
     @Override
-    public List<Author> findAuthors(String brief) {
+    public List<Author> findAuthorsByBrief(String brief) {
         if (!StringUtils.isEmpty(brief)){
             return authorDao.findAuthorsByBrief(brief);
         } else {
@@ -26,7 +26,7 @@ public class AuthorServiceImpl implements AuthorService{
     }
 
     @Override
-    public List<Author> getAuthorByIds(Collection<Long> ids) {
+    public List<Author> getAuthorsByIds(Collection<Long> ids) {
         return authorDao.getAuthorByIds(ids);
     }
 
