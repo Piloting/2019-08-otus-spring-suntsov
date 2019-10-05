@@ -8,13 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import ru.otus.spring.domain.Book;
-import ru.otus.spring.domain.BookGenre;
+import ru.otus.spring.domain.BookInfo;
 import ru.otus.spring.domain.Genre;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("Проверка БД: жанры")
 @ExtendWith(SpringExtension.class)
 @JdbcTest
-@Import({GenreDaoImpl.class, BookDaoImpl.class})
+@Import({GenreDaoImpl.class, BookDaoImpl.class, AuthorDaoImpl.class})
 public class GenreDaoTest {
     
     @Autowired
@@ -73,19 +74,20 @@ public class GenreDaoTest {
         assertThat(genreNames).contains(DB_NAME_S, DB_NAME_F, DB_NAME_D);
     }
 
-    @Test    @DisplayName("Поиск жанров конкретных книг")
+    @Test    
+    @DisplayName("Поиск жанров конкретных книг")
     public void getGenresByBookIdsTest(){
-        List<Book> books = bookDao.getByParam("Руслан и Людмила", null, null);
-        Long bookId = books.iterator().next().getId();
+        List<BookInfo> booksInfo = bookDao.getByParam("Руслан и Людмила", null, null);
+        Long bookId = booksInfo.iterator().next().getId();
 
-        List<BookGenre> genresByBookIds = genreDao.getGenresByBookIds(Collections.singleton(bookId));
+        Map<Long, List<Genre>> genresByBookIds = genreDao.getGenresByBookIds(Collections.singleton(bookId));
         
         // на выходе только искомая книга
-        List<Long> bookIds = genresByBookIds.stream().map(BookGenre::getBookId).collect(Collectors.toList());
+        Set<Long> bookIds = genresByBookIds.keySet();
         assertThat(bookIds).containsOnly(bookId);
         
         // на выходе правильные жанры
-        List<String> genres = genresByBookIds.stream().map(bookGenre -> bookGenre.getGenre().getName()).collect(Collectors.toList());
+        List<String> genres = genresByBookIds.values().stream().flatMap(Collection::stream).map(Genre::getName).collect(Collectors.toList());
         assertThat(genres).contains(DB_NAME_S, DB_NAME_D);
     }
 
@@ -93,35 +95,26 @@ public class GenreDaoTest {
     @DisplayName("Добавление жанров для книги")
     public void insertBookGenresTest(){
         // данные
-        Long bookId = 10L;
-        List<BookGenre> bookGenres = createBookGenreDto(bookId);
+        Long bookId = 1L;
+        List<Genre> genres = genreDao.findGenresByName(DB_NAME_S);
         // вставка
-        genreDao.insertBookGenres(bookGenres);
+        genreDao.insertBookGenres(Collections.singletonMap(bookId, genres));
         // проверка
-        List<BookGenre> genresByBookIds = genreDao.getGenresByBookIds(Collections.singleton(bookId));
-        List<String> genres = genresByBookIds.stream().map(bookGenre -> bookGenre.getGenre().getName()).collect(Collectors.toList());
-        assertThat(genres).contains(DB_NAME_S);
-    }
-
-    private List<BookGenre> createBookGenreDto(Long bookId) {
-        List<Genre> genresByName = genreDao.findGenresByName(DB_NAME_S);
-        List<BookGenre> bookGenres = new ArrayList<>();
-        for (Genre genre : genresByName) {
-            bookGenres.add(new BookGenre(bookId, genre));
-        }
-        return bookGenres;
+        Map<Long, List<Genre>> genresByBookIds = genreDao.getGenresByBookIds(Collections.singleton(bookId));
+        List<String> foundGenres = genresByBookIds.values().stream().flatMap(Collection::stream).map(Genre::getName).collect(Collectors.toList());
+        assertThat(foundGenres).contains(DB_NAME_S);
     }
 
     @Test
     @DisplayName("Удаление жанров для книги")
     public void deleteBookGenreByBookIdTest(){
-        List<Book> books = bookDao.getByParam("Руслан и Людмила", null, null);
-        Long bookId = books.iterator().next().getId();
+        List<BookInfo> booksInfo = bookDao.getByParam("Руслан и Людмила", null, null);
+        Long bookId = booksInfo.iterator().next().getId();
         
         // удаление
         genreDao.deleteBookGenreByBookId(bookId);
         // проверка
-        List<BookGenre> genresByBookIds = genreDao.getGenresByBookIds(Collections.singleton(bookId));
+        Map<Long, List<Genre>> genresByBookIds = genreDao.getGenresByBookIds(Collections.singleton(bookId));
         Assertions.assertTrue(genresByBookIds.isEmpty(), "Не должно быть жанров");
     }
 }

@@ -1,14 +1,11 @@
 package ru.otus.spring.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import ru.otus.spring.dao.BookDao;
-import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.BookInfo;
 import ru.otus.spring.domain.Genre;
 
@@ -47,29 +44,15 @@ public class BookServiceTest {
     }
     
     @Test
-    @DisplayName("Поиск полной информации о книгах")
-    public void getBooksInfoByParamTest(){
-        Book book = new Book(1L, "Book", 1L);
-        Mockito.when(bookDao.getByParam("title", "author", "genre")).thenReturn(Collections.singletonList(book));
-
-        List<BookInfo> bookFullInfoByParam = bookService.getBookFullInfoByParam("title", "author", "genre");
-        Assertions.assertEquals(1, bookFullInfoByParam.size(), "Должна быть 1 запись");
-
-        Assertions.assertEquals(book, bookFullInfoByParam.iterator().next().getBook(), "Должны совпадать");
-        
-        verify(bookDao, times(1)).getByParam(eq("title"), eq("author"), eq("genre"));
-        verify(authorService, times(1)).getAuthorsByIds(any());
-        verify(genreService, times(1)).getGenresByBookIds(any());
-    }
-
-    @Test
     @DisplayName("Добавление книги")
     public void insertBookTest(){
-        Book book = new Book(null, "Book", 1L);
+        BookInfo bookInfo = new BookInfo();
+        bookInfo.setTitle("Book");
         List<Genre> genres = Collections.singletonList(new Genre(1L, "genre1"));
-        bookService.insertBook(book, genres);
+        bookInfo.setGenres(genres);
+        bookService.insertBook(bookInfo);
 
-        verify(bookDao, times(1)).insertBook(eq(book));
+        verify(bookDao, times(1)).insertBook(eq(bookInfo));
         verify(genreService, times(1)).bindGenres(any(), eq(genres));
     }
 

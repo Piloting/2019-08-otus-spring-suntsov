@@ -5,13 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import ru.otus.spring.dao.GenreDao;
-import ru.otus.spring.domain.BookGenre;
 import ru.otus.spring.domain.Genre;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,13 +47,7 @@ public class GenreServiceImpl implements GenreService{
         if (CollectionUtils.isEmpty(genres)){
             return;
         }
-        List<BookGenre> bookGenres = genres.stream().map(genre -> new BookGenre(bookId, genre)).collect(Collectors.toList());
-        genreDao.insertBookGenres(bookGenres);
-    }
-
-    @Override
-    public List<BookGenre> getGenresByBookIds(Collection<Long> bookIds) {
-        return genreDao.getGenresByBookIds(bookIds);
+        genreDao.insertBookGenres(Collections.singletonMap(bookId, genres));
     }
 
     @Override

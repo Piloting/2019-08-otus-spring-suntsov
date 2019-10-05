@@ -4,11 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Repository;
-import ru.otus.spring.domain.BookGenre;
+import ru.otus.spring.dao.dto.BookGenre;
 import ru.otus.spring.domain.Genre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,23 +36,34 @@ public class GenreDaoImpl implements GenreDao{
     }
 
     @Override
-    public List<BookGenre> getGenresByBookIds(Collection<Long> bookIds) {
+    public Map<Long, List<Genre>> getGenresByBookIds(Collection<Long> bookIds) {
         Map<String, Object> params = Collections.singletonMap("IDS", new HashSet<>(bookIds));
-        return namedParameterJdbcOperations.query(
+        List<BookGenre> bookGenres = namedParameterJdbcOperations.query(
                 "SELECT BOOKGENRE.BOOKID, BOOKGENRE.GENREID, GENRE.NAME " +
-                        "FROM BOOKGENRE " +
-                        "JOIN GENRE ON GENRE.ID = BOOKGENRE.GENREID " +
-                        "WHERE BOOKGENRE.BOOKID IN (:IDS)", params, new BookGenreMapper()
+                   "FROM BOOKGENRE " +
+                   "JOIN GENRE ON GENRE.ID = BOOKGENRE.GENREID " +
+                   "WHERE BOOKGENRE.BOOKID IN (:IDS)", params, new BookGenreMapper()
         );
+
+        Map<Long, List<Genre>> resultMap = new HashMap<>();
+        for (BookGenre bookGenre : bookGenres) {
+            List<Genre> genreList = resultMap.computeIfAbsent(bookGenre.getBookId(), k -> new ArrayList<>());
+            genreList.add(bookGenre.getGenre());
+        }
+        
+        return resultMap;
     }
 
     @Override
-    public void insertBookGenres(List<BookGenre> bookGenres) {
-        for (BookGenre bookGenre : bookGenres) {
-            Map<String, Object> params = new HashMap<>();
-            params.put("BOOKID", bookGenre.getBookId());
-            params.put("GENREID", bookGenre.getGenre().getId());
-            namedParameterJdbcOperations.update("INSERT INTO BOOKGENRE (BOOKID, GENREID) VALUES (:BOOKID, :GENREID)", params);
+    public void insertBookGenres(Map<Long, List<Genre>> bookGenres) {
+        for (Map.Entry<Long, List<Genre>> entry : bookGenres.entrySet()) {
+            Long bookId = entry.getKey();
+            for (Genre genre : entry.getValue()) {
+                Map<String, Object> params = new HashMap<>();
+                params.put("BOOKID", bookId);
+                params.put("GENREID", genre.getId());
+                namedParameterJdbcOperations.update("INSERT INTO BOOKGENRE (BOOKID, GENREID) VALUES (:BOOKID, :GENREID)", params);
+            }
         }
     }
 

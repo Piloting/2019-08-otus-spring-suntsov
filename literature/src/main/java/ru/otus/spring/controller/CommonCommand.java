@@ -6,7 +6,6 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.util.StringUtils;
 import ru.otus.spring.domain.Author;
-import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.BookInfo;
 import ru.otus.spring.domain.Genre;
 import ru.otus.spring.service.AuthorService;
@@ -39,24 +38,11 @@ public class CommonCommand {
      *   b t Рус% a Пуш% g Сказка
      */
     @ShellMethod(value = "Get books", key = {"b", "books"})
-    public List<Book> getBooks(
+    public List<BookInfo> getBooks(
             @ShellOption(defaultValue = "", value = {"t"}, arity = 1) String title,
             @ShellOption(defaultValue = "", value = {"a"}, arity = 1) String author,
             @ShellOption(defaultValue = "", value = {"g"}, arity = 1) String genre) {
         return bookService.getBooksByParam(title, author, genre);
-    }
-
-    /**
-     * Example: 
-     *   bi
-     *   bi t Рус% a Пуш% g Сказка
-     */
-    @ShellMethod(value = "Get books", key = {"bi"})
-    public List<BookInfo> getBooksInfo(
-            @ShellOption(defaultValue = "", value = {"t"}, arity = 1) String title,
-            @ShellOption(defaultValue = "", value = {"a"}, arity = 1) String author,
-            @ShellOption(defaultValue = "", value = {"g"}, arity = 1) String genre) {
-        return bookService.getBookFullInfoByParam(title, author, genre);
     }
 
     /**
@@ -83,12 +69,13 @@ public class CommonCommand {
         Author author = authorService.getAuthor(authorId, authorBrief);
         List<Genre> genresList = genreService.getGenresByNames(genres);
 
-        Book book = new Book();
-        book.setTitle(title);
-        book.setAuthorId(author.getId());
-        bookService.insertBook(book, genresList);
+        BookInfo bookInfo = new BookInfo();
+        bookInfo.setTitle(title);
+        bookInfo.setAuthor(author);
+        bookInfo.setGenres(genresList);
+        bookService.insertBook(bookInfo);
         System.out.println("Book created");
-        return book.getId();
+        return bookInfo.getId();
     }
 
     /**
@@ -101,12 +88,15 @@ public class CommonCommand {
             @ShellOption(defaultValue = "", value = {"ab"}, arity = 1) String authorBrief,
             @ShellOption(defaultValue = "", value = {"ai"}, arity = 1) Long   authorId
     ){
+        Author author = null;
         if (authorId != null || !StringUtils.isEmpty(authorBrief)){
-            Author author = authorService.getAuthor(authorId, authorBrief);
-            authorId = author.getId();
+            author = authorService.getAuthor(authorId, authorBrief);
         }
-        Book book = new Book(id, title, authorId);
-        bookService.updateBook(book);
+        BookInfo bookInfo = new BookInfo();
+        bookInfo.setId(id);
+        bookInfo.setTitle(title);
+        bookInfo.setAuthor(author);
+        bookService.updateBook(bookInfo);
         System.out.println("Book updated");
     }
 

@@ -1,7 +1,8 @@
-package ru.otus.spring.domain;
+package ru.otus.spring.dao.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import ru.otus.spring.domain.Genre;
 
 @Data
 @AllArgsConstructor

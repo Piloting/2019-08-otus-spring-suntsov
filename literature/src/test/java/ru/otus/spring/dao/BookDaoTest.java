@@ -7,9 +7,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import ru.otus.spring.domain.Book;
+import ru.otus.spring.dao.dto.Book;
+import ru.otus.spring.domain.BookInfo;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("Проверка БД: книги")
 @ExtendWith(SpringExtension.class)
 @JdbcTest
-@Import(BookDaoImpl.class)
+@Import({BookDaoImpl.class,  GenreDaoImpl.class, AuthorDaoImpl.class})
 public class BookDaoTest {
     
     @Autowired
@@ -32,15 +33,14 @@ public class BookDaoTest {
 
     private static final String DB_AUTHOR_P = "Пушкин А.С.";
     private static final String DB_GENRE_S = "Сказка";
-    private static final String DB_GENRE_D = "Драмма";
 
     @Test    
     @DisplayName("Получение всех книг")
     public void getAllTest(){
-        List<Book> allBooks = bookDao.getAll();
+        List<BookInfo> allBooks = bookDao.getAll();
         Assertions.assertEquals(3, allBooks.size(), "Должно быть 3 записи");
-        List<String> authorBriefs = allBooks.stream().map(Book::getTitle).collect(Collectors.toList());
-        assertThat(authorBriefs).contains(DB_TITLE_R, DB_TITLE_1, DB_TITLE_D);
+        List<String> titles = allBooks.stream().map(BookInfo::getTitle).collect(Collectors.toList());
+        assertThat(titles).contains(DB_TITLE_R, DB_TITLE_1, DB_TITLE_D);
     }
     
     @Test    
@@ -48,29 +48,29 @@ public class BookDaoTest {
     public void getByParamTitleTest(){
         // простой поиск 
         String findTitle = DB_TITLE_R;
-        List<Book> authorByName = bookDao.getByParam(findTitle, null, null);
-        Assertions.assertEquals(1, authorByName.size(), "Должна быть 1 запись");
-        List<String> foundGenreNames = authorByName.stream().map(Book::getTitle).collect(Collectors.toList());
-        assertThat(foundGenreNames).contains(DB_TITLE_R);
+        List<BookInfo> bookInfoByTitleList = bookDao.getByParam(findTitle, null, null);
+        Assertions.assertEquals(1, bookInfoByTitleList.size(), "Должна быть 1 запись");
+        List<String> foundTitles = bookInfoByTitleList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
+        assertThat(foundTitles).contains(DB_TITLE_R);
 
         // поиск без %
         findTitle = "Руслан";
-        authorByName = bookDao.getByParam(findTitle, null, null);
-        Assertions.assertTrue(authorByName.isEmpty(), "Не должена найтись книга");
+        bookInfoByTitleList = bookDao.getByParam(findTitle, null, null);
+        Assertions.assertTrue(bookInfoByTitleList.isEmpty(), "Не должена найтись книга");
 
         // поиск с %
         findTitle = "Руслан%";
-        authorByName = bookDao.getByParam(findTitle, null, null);
-        Assertions.assertEquals(1, authorByName.size(), "Должна быть 1 запись");
-        foundGenreNames = authorByName.stream().map(Book::getTitle).collect(Collectors.toList());
-        assertThat(foundGenreNames).contains(DB_TITLE_R);
+        bookInfoByTitleList = bookDao.getByParam(findTitle, null, null);
+        Assertions.assertEquals(1, bookInfoByTitleList.size(), "Должна быть 1 запись");
+        foundTitles = bookInfoByTitleList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
+        assertThat(foundTitles).contains(DB_TITLE_R);
 
         // поиск с %
         findTitle = "%л%";
-        authorByName = bookDao.getByParam(findTitle, null, null);
-        Assertions.assertEquals(2, authorByName.size(), "Должно быть 2 записи");
-        foundGenreNames = authorByName.stream().map(Book::getTitle).collect(Collectors.toList());
-        assertThat(foundGenreNames).contains(DB_TITLE_R, DB_TITLE_D);
+        bookInfoByTitleList = bookDao.getByParam(findTitle, null, null);
+        Assertions.assertEquals(2, bookInfoByTitleList.size(), "Должно быть 2 записи");
+        foundTitles = bookInfoByTitleList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
+        assertThat(foundTitles).contains(DB_TITLE_R, DB_TITLE_D);
     }
     
     @Test    
@@ -78,58 +78,58 @@ public class BookDaoTest {
     public void getByParamAuthorTest(){
         // простой поиск 
         String findAuthor = DB_AUTHOR_P;
-        List<Book> authorByName = bookDao.getByParam(null, findAuthor, null);
-        Assertions.assertEquals(1, authorByName.size(), "Должна быть 1 запись");
-        List<String> foundGenreNames = authorByName.stream().map(Book::getTitle).collect(Collectors.toList());
-        assertThat(foundGenreNames).contains(DB_TITLE_R);
+        List<BookInfo> bookInfoByAuthorList = bookDao.getByParam(null, findAuthor, null);
+        Assertions.assertEquals(1, bookInfoByAuthorList.size(), "Должна быть 1 запись");
+        List<String> foundTitles = bookInfoByAuthorList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
+        assertThat(foundTitles).contains(DB_TITLE_R);
 
         // поиск без %
         findAuthor = "Пушкин";
-        authorByName = bookDao.getByParam(null, findAuthor, null);
-        Assertions.assertTrue(authorByName.isEmpty(), "Не должена найтись книга");
+        bookInfoByAuthorList = bookDao.getByParam(null, findAuthor, null);
+        Assertions.assertTrue(bookInfoByAuthorList.isEmpty(), "Не должена найтись книга");
 
         // поиск с %
         findAuthor = "Пушкин%";
-        authorByName = bookDao.getByParam(null, findAuthor, null);
-        Assertions.assertEquals(1, authorByName.size(), "Должна быть 1 запись");
-        foundGenreNames = authorByName.stream().map(Book::getTitle).collect(Collectors.toList());
-        assertThat(foundGenreNames).contains(DB_TITLE_R);
+        bookInfoByAuthorList = bookDao.getByParam(null, findAuthor, null);
+        Assertions.assertEquals(1, bookInfoByAuthorList.size(), "Должна быть 1 запись");
+        foundTitles = bookInfoByAuthorList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
+        assertThat(foundTitles).contains(DB_TITLE_R);
 
         // поиск с %
         findAuthor = "%.%";
-        authorByName = bookDao.getByParam(null, findAuthor, null);
-        Assertions.assertEquals(3, authorByName.size(), "Должно быть 3 записи");
-        foundGenreNames = authorByName.stream().map(Book::getTitle).collect(Collectors.toList());
-        assertThat(foundGenreNames).contains(DB_TITLE_R, DB_TITLE_1, DB_TITLE_D);
+        bookInfoByAuthorList = bookDao.getByParam(null, findAuthor, null);
+        Assertions.assertEquals(3, bookInfoByAuthorList.size(), "Должно быть 3 записи");
+        foundTitles = bookInfoByAuthorList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
+        assertThat(foundTitles).contains(DB_TITLE_R, DB_TITLE_1, DB_TITLE_D);
     }
     @Test    
     @DisplayName("Поиск книг по параметрам - Жанр")
     public void getByParamGenreTest(){
         // простой поиск 
         String findGenre = DB_GENRE_S;
-        List<Book> authorByName = bookDao.getByParam(null, null, findGenre);
-        Assertions.assertEquals(1, authorByName.size(), "Должна быть 1 запись");
-        List<String> foundGenreNames = authorByName.stream().map(Book::getTitle).collect(Collectors.toList());
-        assertThat(foundGenreNames).contains(DB_TITLE_R);
+        List<BookInfo> bookInfoByGenreList = bookDao.getByParam(null, null, findGenre);
+        Assertions.assertEquals(1, bookInfoByGenreList.size(), "Должна быть 1 запись");
+        List<String> foundTitles = bookInfoByGenreList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
+        assertThat(foundTitles).contains(DB_TITLE_R);
 
         // поиск без %
         findGenre = "Сказ";
-        authorByName = bookDao.getByParam(null, null, findGenre);
-        Assertions.assertTrue(authorByName.isEmpty(), "Не должена найтись книга");
+        bookInfoByGenreList = bookDao.getByParam(null, null, findGenre);
+        Assertions.assertTrue(bookInfoByGenreList.isEmpty(), "Не должена найтись книга");
 
         // поиск с %
         findGenre = "Сказ%";
-        authorByName = bookDao.getByParam(null, null, findGenre);
-        Assertions.assertEquals(1, authorByName.size(), "Должна быть 1 запись");
-        foundGenreNames = authorByName.stream().map(Book::getTitle).collect(Collectors.toList());
-        assertThat(foundGenreNames).contains(DB_TITLE_R);
+        bookInfoByGenreList = bookDao.getByParam(null, null, findGenre);
+        Assertions.assertEquals(1, bookInfoByGenreList.size(), "Должна быть 1 запись");
+        foundTitles = bookInfoByGenreList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
+        assertThat(foundTitles).contains(DB_TITLE_R);
 
         // поиск с %
         findGenre = "%а%";
-        authorByName = bookDao.getByParam(null, null, findGenre);
-        Assertions.assertEquals(3, authorByName.size(), "Должно быть 3 записи");
-        foundGenreNames = authorByName.stream().map(Book::getTitle).collect(Collectors.toList());
-        assertThat(foundGenreNames).contains(DB_TITLE_R, DB_TITLE_1, DB_TITLE_D);
+        bookInfoByGenreList = bookDao.getByParam(null, null, findGenre);
+        Assertions.assertEquals(3, bookInfoByGenreList.size(), "Должно быть 3 записи");
+        foundTitles = bookInfoByGenreList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
+        assertThat(foundTitles).contains(DB_TITLE_R, DB_TITLE_1, DB_TITLE_D);
     }
     
     @Test    
@@ -139,80 +139,77 @@ public class BookDaoTest {
         String findTitle = DB_TITLE_R;
         String findAuthor = DB_AUTHOR_P;
         String findGenre = DB_GENRE_S;
-        List<Book> authorByName = bookDao.getByParam(findTitle, findAuthor, findGenre);
-        Assertions.assertEquals(1, authorByName.size(), "Должна быть 1 запись");
-        List<String> foundGenreNames = authorByName.stream().map(Book::getTitle).collect(Collectors.toList());
-        assertThat(foundGenreNames).contains(DB_TITLE_R);
+        List<BookInfo> foundBookInfoList = bookDao.getByParam(findTitle, findAuthor, findGenre);
+        Assertions.assertEquals(1, foundBookInfoList.size(), "Должна быть 1 запись");
+        List<String> foundTitles = foundBookInfoList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
+        assertThat(foundTitles).contains(DB_TITLE_R);
 
         // поиск без %
         findTitle = "Руслан";
         findAuthor = "Пуш";
         findGenre = "Сказ";
-        authorByName = bookDao.getByParam(findTitle, findAuthor, findGenre);
-        Assertions.assertTrue(authorByName.isEmpty(), "Не должена найтись книга");
+        foundBookInfoList = bookDao.getByParam(findTitle, findAuthor, findGenre);
+        Assertions.assertTrue(foundBookInfoList.isEmpty(), "Не должена найтись книга");
 
         // поиск с %
         findTitle = "Руслан%";
         findAuthor = "Пуш%";
         findGenre = "Сказ%";
-        authorByName = bookDao.getByParam(findTitle, findAuthor, findGenre);
-        Assertions.assertEquals(1, authorByName.size(), "Должна быть 1 запись");
-        foundGenreNames = authorByName.stream().map(Book::getTitle).collect(Collectors.toList());
-        assertThat(foundGenreNames).contains(DB_TITLE_R);
+        foundBookInfoList = bookDao.getByParam(findTitle, findAuthor, findGenre);
+        Assertions.assertEquals(1, foundBookInfoList.size(), "Должна быть 1 запись");
+        foundTitles = foundBookInfoList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
+        assertThat(foundTitles).contains(DB_TITLE_R);
 
         // поиск без параметров
-        authorByName = bookDao.getByParam(null, null, null);
-        Assertions.assertEquals(3, authorByName.size(), "Должно быть 3 записи");
-        foundGenreNames = authorByName.stream().map(Book::getTitle).collect(Collectors.toList());
-        assertThat(foundGenreNames).contains(DB_TITLE_R, DB_TITLE_1, DB_TITLE_D);
+        foundBookInfoList = bookDao.getByParam(null, null, null);
+        Assertions.assertEquals(3, foundBookInfoList.size(), "Должно быть 3 записи");
+        foundTitles = foundBookInfoList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
+        assertThat(foundTitles).contains(DB_TITLE_R, DB_TITLE_1, DB_TITLE_D);
     }
     
     @Test    
     @DisplayName("Поиск книг по id")
     public void getByIdTest(){
-        List<Book> books = bookDao.getByParam(DB_TITLE_R, null, null);
-        Book expectedBook = books.iterator().next();
-        Book foundBook = bookDao.getById(expectedBook.getId());
-        Assertions.assertEquals(expectedBook.getTitle(), foundBook.getTitle(), "Сокращение должно совпадать");
+        List<BookInfo> bookInfoList = bookDao.getByParam(DB_TITLE_R, null, null);
+        BookInfo expectedBookInfo = bookInfoList.iterator().next();
+        Book foundBook = bookDao.getById(expectedBookInfo.getId());
+        Assertions.assertEquals(expectedBookInfo.getTitle(), foundBook.getTitle(), "Сокращение должно совпадать");
     }
     
     @Test    
     @DisplayName("Добавление книг")
     public void insertBookTest(){
-        Book insertedBook = new Book(null, "Новая книга", 1L);
+        BookInfo insertedBookInfo = new BookInfo();
+        insertedBookInfo.setTitle("Новая книга");
         // вставка
-        Long bookId = bookDao.insertBook(insertedBook);
+        Long bookId = bookDao.insertBook(insertedBookInfo);
         // проверка
         Book foundBook = bookDao.getById(bookId);
-        Assertions.assertEquals(insertedBook, foundBook, "Должны совпадать");
+        Assertions.assertEquals(insertedBookInfo.getTitle(), foundBook.getTitle(), "Должны совпадать");
     }
     
     @Test    
     @DisplayName("Изменение книг")
     public void updateBookTest(){
-        List<Book> books = bookDao.getByParam(DB_TITLE_R, null, null);
-        Book expectedBook = books.iterator().next();
+        List<BookInfo> bookInfoList = bookDao.getByParam(DB_TITLE_R, null, null);
+        BookInfo expectedBookInfo = bookInfoList.iterator().next();
 
         // изменение
-        expectedBook.setTitle("Другая книга");
-        bookDao.updateBook(expectedBook);
+        expectedBookInfo.setTitle("Другая книга");
+        bookDao.updateBook(expectedBookInfo);
         
         // проверка
-        Book foundBook = bookDao.getById(expectedBook.getId());
+        Book foundBook = bookDao.getById(expectedBookInfo.getId());
         assertThat(foundBook).hasFieldOrPropertyWithValue("title","Другая книга");
     }
     
     @Test    
     @DisplayName("Удаление книг")
     public void deleteBookTest(){
-        List<Book> books = bookDao.getByParam(DB_TITLE_R, null, null);
-        Long bookId = books.iterator().next().getId();
-        
-        // удаление
-        bookDao.deleteBook(bookId);
-
+        List<BookInfo> bookInfoList = bookDao.getByParam(DB_TITLE_R, null, null);
+        Long bookId = bookInfoList.iterator().next().getId();
         // проверка
-        Assertions.assertThrows(EmptyResultDataAccessException.class, () -> bookDao.getById(bookId));
+        Assertions.assertThrows(DataIntegrityViolationException.class, () -> bookDao.deleteBook(bookId));
     }
     
 }

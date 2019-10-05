@@ -1,16 +1,16 @@
 package ru.otus.spring.dao;
 
-import ru.otus.spring.domain.BookGenre;
 import ru.otus.spring.domain.Genre;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface GenreDao {
     List<Genre> findGenresByName(String name);
     List<Genre> findAllGenres();
-    
-    List<BookGenre> getGenresByBookIds(Collection<Long> bookIds);
-    void insertBookGenres(List<BookGenre> bookGenres);
+
+    Map<Long, List<Genre>> getGenresByBookIds(Collection<Long> bookIds);
+    void insertBookGenres(Map<Long, List<Genre>> bookGenres);
     void deleteBookGenreByBookId(Long bookId);
 }
