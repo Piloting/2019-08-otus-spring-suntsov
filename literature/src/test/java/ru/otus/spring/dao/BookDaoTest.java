@@ -9,7 +9,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import ru.otus.spring.dao.dto.Book;
 import ru.otus.spring.domain.BookInfo;
 
 import java.util.List;
@@ -44,8 +43,9 @@ public class BookDaoTest {
     }
     
     @Test    
-    @DisplayName("Поиск книг по параметрам - Название")
+    @DisplayName("Поиск книг по параметрам - Название, Автор, Жанр, Все параметры")
     public void getByParamTitleTest(){
+        // --- Поиск книг по параметрам - Название ---
         // простой поиск 
         String findTitle = DB_TITLE_R;
         List<BookInfo> bookInfoByTitleList = bookDao.getByParam(findTitle, null, null);
@@ -71,16 +71,14 @@ public class BookDaoTest {
         Assertions.assertEquals(2, bookInfoByTitleList.size(), "Должно быть 2 записи");
         foundTitles = bookInfoByTitleList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
         assertThat(foundTitles).contains(DB_TITLE_R, DB_TITLE_D);
-    }
-    
-    @Test    
-    @DisplayName("Поиск книг по параметрам - Автор")
-    public void getByParamAuthorTest(){
+   
+        
+        // --- Поиск книг по параметрам - Автор ---
         // простой поиск 
         String findAuthor = DB_AUTHOR_P;
         List<BookInfo> bookInfoByAuthorList = bookDao.getByParam(null, findAuthor, null);
         Assertions.assertEquals(1, bookInfoByAuthorList.size(), "Должна быть 1 запись");
-        List<String> foundTitles = bookInfoByAuthorList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
+        foundTitles = bookInfoByAuthorList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
         assertThat(foundTitles).contains(DB_TITLE_R);
 
         // поиск без %
@@ -101,15 +99,14 @@ public class BookDaoTest {
         Assertions.assertEquals(3, bookInfoByAuthorList.size(), "Должно быть 3 записи");
         foundTitles = bookInfoByAuthorList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
         assertThat(foundTitles).contains(DB_TITLE_R, DB_TITLE_1, DB_TITLE_D);
-    }
-    @Test    
-    @DisplayName("Поиск книг по параметрам - Жанр")
-    public void getByParamGenreTest(){
+    
+        
+        // --- Поиск книг по параметрам - Жанр ---
         // простой поиск 
         String findGenre = DB_GENRE_S;
         List<BookInfo> bookInfoByGenreList = bookDao.getByParam(null, null, findGenre);
         Assertions.assertEquals(1, bookInfoByGenreList.size(), "Должна быть 1 запись");
-        List<String> foundTitles = bookInfoByGenreList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
+        foundTitles = bookInfoByGenreList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
         assertThat(foundTitles).contains(DB_TITLE_R);
 
         // поиск без %
@@ -130,18 +127,16 @@ public class BookDaoTest {
         Assertions.assertEquals(3, bookInfoByGenreList.size(), "Должно быть 3 записи");
         foundTitles = bookInfoByGenreList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
         assertThat(foundTitles).contains(DB_TITLE_R, DB_TITLE_1, DB_TITLE_D);
-    }
+
     
-    @Test    
-    @DisplayName("Поиск книг по параметрам - Все параметры")
-    public void getByParamComplexTest(){
+        // --- Поиск книг по параметрам - Все параметры ---
         // простой поиск 
-        String findTitle = DB_TITLE_R;
-        String findAuthor = DB_AUTHOR_P;
-        String findGenre = DB_GENRE_S;
+        findTitle = DB_TITLE_R;
+        findAuthor = DB_AUTHOR_P;
+        findGenre = DB_GENRE_S;
         List<BookInfo> foundBookInfoList = bookDao.getByParam(findTitle, findAuthor, findGenre);
         Assertions.assertEquals(1, foundBookInfoList.size(), "Должна быть 1 запись");
-        List<String> foundTitles = foundBookInfoList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
+        foundTitles = foundBookInfoList.stream().map(BookInfo::getTitle).collect(Collectors.toList());
         assertThat(foundTitles).contains(DB_TITLE_R);
 
         // поиск без %
@@ -172,7 +167,7 @@ public class BookDaoTest {
     public void getByIdTest(){
         List<BookInfo> bookInfoList = bookDao.getByParam(DB_TITLE_R, null, null);
         BookInfo expectedBookInfo = bookInfoList.iterator().next();
-        Book foundBook = bookDao.getById(expectedBookInfo.getId());
+        BookInfo foundBook = bookDao.getById(expectedBookInfo.getId());
         Assertions.assertEquals(expectedBookInfo.getTitle(), foundBook.getTitle(), "Сокращение должно совпадать");
     }
     
@@ -184,7 +179,7 @@ public class BookDaoTest {
         // вставка
         Long bookId = bookDao.insertBook(insertedBookInfo);
         // проверка
-        Book foundBook = bookDao.getById(bookId);
+        BookInfo foundBook = bookDao.getById(bookId);
         Assertions.assertEquals(insertedBookInfo.getTitle(), foundBook.getTitle(), "Должны совпадать");
     }
     
@@ -199,7 +194,7 @@ public class BookDaoTest {
         bookDao.updateBook(expectedBookInfo);
         
         // проверка
-        Book foundBook = bookDao.getById(expectedBookInfo.getId());
+        BookInfo foundBook = bookDao.getById(expectedBookInfo.getId());
         assertThat(foundBook).hasFieldOrPropertyWithValue("title","Другая книга");
     }
     

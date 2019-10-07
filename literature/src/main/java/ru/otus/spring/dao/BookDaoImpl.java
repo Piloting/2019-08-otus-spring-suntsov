@@ -79,7 +79,7 @@ public class BookDaoImpl implements BookDao {
     }
 
     private List<BookInfo> fillBookInfoParam(List<Book> books) {
-        List<BookInfo> bookInfos = new ArrayList<>(books.size());
+        List<BookInfo> bookInfoList = new ArrayList<>(books.size());
         
         List<Long> bookIds = books.stream().map(Book::getId).collect(Collectors.toList());
         Set<Long> authorIds = books.stream().map(Book::getAuthorId).collect(Collectors.toSet());
@@ -96,18 +96,20 @@ public class BookDaoImpl implements BookDao {
             bookInfo.setTitle(book.getTitle());
             bookInfo.setAuthor(authorMap.get(book.getAuthorId()));
             bookInfo.setGenres(genresByBookIds.get(book.getId()));
-            bookInfos.add(bookInfo);
+            bookInfoList.add(bookInfo);
         }
-        return bookInfos;
+        return bookInfoList;
     }
 
 
     @Override
-    public Book getById(Long id) {
+    public BookInfo getById(Long id) {
         Map<String, Object> params = Collections.singletonMap("ID", id);
-        return namedParameterJdbcOperations.queryForObject(
+        Book book = namedParameterJdbcOperations.queryForObject(
                 "SELECT ID, TITLE, AUTHORID FROM BOOK WHERE ID = :ID", params, new BookMapper()
         );
+        List<BookInfo> bookInfoList = fillBookInfoParam(Collections.singletonList(book));
+        return bookInfoList.iterator().next();
     }
 
     @Override
@@ -124,12 +126,12 @@ public class BookDaoImpl implements BookDao {
 
     @Override
     public void updateBook(BookInfo bookInfo) {
-        Book existBook = getById(bookInfo.getId());
+        BookInfo existBook = getById(bookInfo.getId());
 
         Map<String, Object> params = new HashMap<>();
         params.put("ID", bookInfo.getId());
         params.put("TITLE", bookInfo.getTitle() != null ? bookInfo.getTitle() : existBook.getTitle());
-        params.put("AUTHORID", bookInfo.getAuthor() != null ? bookInfo.getAuthor().getId() : existBook.getAuthorId());
+        params.put("AUTHORID", bookInfo.getAuthor() != null ? bookInfo.getAuthor().getId() : existBook.getAuthor().getId());
         namedParameterJdbcOperations.update(
                 "UPDATE BOOK " +
                    "SET TITLE    = :TITLE, " +

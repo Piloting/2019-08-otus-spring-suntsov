@@ -8,15 +8,18 @@ import ru.otus.spring.domain.Author;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
 public class AuthorDaoImpl implements AuthorDao{
+    private static final int SPLIT_SIZE = 1000;
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
 
     public List<Author> findAuthorsByBrief(String brief){
@@ -33,10 +36,18 @@ public class AuthorDaoImpl implements AuthorDao{
     }
     
     public List<Author> getAuthorByIds(Collection<Long> ids){
-        Map<String, Object> params = Collections.singletonMap("IDS", new HashSet<>(ids));
-        return namedParameterJdbcOperations.query(
-                "SELECT ID, BRIEF FROM AUTHOR WHERE ID IN (:IDS)", params, new AuthorMapper()
-        );
+        List<Author> authors = new ArrayList<>(ids.size());
+
+        Collection<List<Long>> slittedIds = ids.stream().collect(Collectors.groupingBy(s -> (s - 1) / SPLIT_SIZE)).values();
+        Map<String, Object> params;
+        for (List<Long> slittedId : slittedIds) {
+            params = Collections.singletonMap("IDS", new HashSet<>(slittedId));
+            authors.addAll(namedParameterJdbcOperations.query(
+                    "SELECT ID, BRIEF FROM AUTHOR WHERE ID IN (:IDS)", params, new AuthorMapper()
+            ));
+        }
+
+        return authors;
     }
     
     
