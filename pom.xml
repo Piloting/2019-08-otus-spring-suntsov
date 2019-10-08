@@ -12,6 +12,7 @@
 
     <modules>
         <module>lesson1</module>
+        <module>literature</module>
     </modules>
 
 </project>
